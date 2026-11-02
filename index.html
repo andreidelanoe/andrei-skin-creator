@@ -1,0 +1,968 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Atelier de skins</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f0e8;--panel:#fffdf7;--ink:#22201c;--muted:#6e695f;--line:#dcd5c6;--soft:#ece7db;--accent:#3d8b4f;--accent-ink:#fff;--hl:#e8590c;--empty:#d9d3c5;--stage1:#f7f4ec;--stage2:#e4ddcd;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15171a;--panel:#1e2125;--ink:#ebe7df;--muted:#9b968c;--line:#343940;--soft:#272b30;--accent:#58b06b;--accent-ink:#0d1a10;--hl:#ff8a3d;--empty:#2a2e33;--stage1:#2a2e33;--stage2:#17191c;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15171a;--panel:#1e2125;--ink:#ebe7df;--muted:#9b968c;--line:#343940;--soft:#272b30;--accent:#58b06b;--accent-ink:#0d1a10;--hl:#ff8a3d;--empty:#2a2e33;--stage1:#2a2e33;--stage2:#17191c;color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header.top{display:flex;align-items:center;justify-content:space-between;gap:10px 16px;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--line);background:var(--panel)}
+.brand{display:flex;align-items:center;gap:10px}
+.brand h1{font:400 18px 'Silkscreen',ui-monospace,monospace;margin:0;letter-spacing:.5px}
+.logo{width:24px;height:24px;background:#5a3a22;box-shadow:inset 0 -14px 0 #c68863;position:relative;flex:none}
+.logo::before{content:"";position:absolute;left:4px;top:13px;width:5px;height:3px;background:#fff;box-shadow:11px 0 #fff}
+.logo::after{content:"";position:absolute;left:6px;top:13px;width:3px;height:3px;background:#3b5bdb;box-shadow:11px 0 #3b5bdb}
+button,.btn{font:inherit;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:7px;padding:6px 11px;cursor:pointer;line-height:1.25;display:inline-flex;align-items:center;gap:6px}
+button:hover,.btn:hover{border-color:var(--muted)}
+button:disabled{opacity:.4;cursor:default}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:transparent;font-weight:600}
+button[aria-pressed="true"],.seg button.on,.parts button.on{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{border:0;border-radius:0;background:transparent}
+.hgroup{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+input[type=text]{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:6px 8px;width:120px}
+main{display:grid;grid-template-columns:236px minmax(0,1fr) 380px;gap:12px;padding:12px 16px;height:calc(100vh - 58px);min-height:600px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;min-height:0;overflow:auto}
+.center{display:flex;flex-direction:column;gap:10px;overflow:hidden}
+h2{font-size:11.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:16px 0 7px;font-weight:600}
+h2:first-child{margin-top:0}
+h3{font-size:12px;color:var(--muted);margin:10px 0 5px;font-weight:500}
+.toolgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.toolgrid button{justify-content:space-between;padding:7px 9px}
+kbd{font:11px ui-monospace,monospace;opacity:.6}
+.chk{display:flex;gap:8px;align-items:center;margin:6px 0;cursor:pointer;font-size:13.5px}
+.colorrow{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+input[type=color]{width:46px;height:34px;border:1px solid var(--line);border-radius:7px;padding:2px;background:var(--panel);cursor:pointer}
+#hexIn{width:96px;font-family:ui-monospace,monospace}
+.swatches{display:grid;grid-template-columns:repeat(8,1fr);gap:4px}
+.sw{aspect-ratio:1;border-radius:4px;border:1px solid rgba(0,0,0,.25);padding:0;cursor:pointer;min-width:0}
+.sw.cur{outline:2px solid var(--hl);outline-offset:1px}
+.empty-note{font-size:12px;color:var(--muted);grid-column:1/-1}
+.parts{display:flex;flex-wrap:wrap;gap:6px}
+.parts .sep{width:1px;background:var(--line);margin:0 4px}
+.selrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.layer-note{font-size:12px;color:var(--muted);max-width:420px}
+.netrow{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap}
+#net{image-rendering:pixelated;cursor:pointer;border-radius:4px;display:block}
+.faces{display:grid;grid-template-columns:repeat(3,auto);gap:6px}
+.faces button{padding-left:22px;position:relative}
+.faces button::before{content:"";position:absolute;left:8px;top:50%;width:8px;height:8px;margin-top:-4px;border-radius:50%;border:1.5px solid currentColor;opacity:.7}
+.faces button.partial::before{background:linear-gradient(90deg,currentColor 50%,transparent 50%)}
+.faces button.done::before{background:currentColor}
+.actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+#editorWrap{flex:1;min-height:260px;display:grid;place-items:center;background:var(--soft);border-radius:10px;overflow:hidden;position:relative}
+#editor{image-rendering:pixelated;cursor:crosshair;touch-action:none;box-shadow:0 6px 22px rgba(0,0,0,.14)}
+.status{font-size:12.5px;color:var(--muted);min-height:18px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.viewer{display:flex;flex-direction:column;gap:10px}
+#view3d{position:relative;height:430px;border-radius:10px;background:radial-gradient(ellipse at 50% 35%,var(--stage1),var(--stage2));overflow:hidden;flex:none}
+#view3d canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}
+#view3d.paint canvas{cursor:crosshair}
+.hint3d{position:absolute;left:10px;right:10px;bottom:8px;font-size:11.5px;color:var(--muted);pointer-events:none}
+.vtoggles{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+#paint3dBtn{width:100%;justify-content:center}
+.bar{height:8px;background:var(--soft);border-radius:4px;overflow:hidden}
+.bar span{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+#progTxt{font-size:12.5px;color:var(--muted);margin:6px 0 0}
+details.help summary{cursor:pointer;font-weight:600}
+details.help p,details.help li{font-size:13px;color:var(--muted)}
+details.help ul{padding-left:18px;margin:6px 0}
+#toast{position:fixed;left:50%;bottom:20px;transform:translate(-50%,16px);background:var(--ink);color:var(--bg);padding:9px 14px;border-radius:8px;opacity:0;transition:.25s;pointer-events:none;font-size:13px;z-index:10;max-width:calc(100vw - 32px)}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+body.drop main{outline:3px dashed var(--accent);outline-offset:-6px}
+#loadErr{display:none;padding:12px 16px;background:#c92a2a;color:#fff}
+@media (max-width:1180px){main{grid-template-columns:220px minmax(0,1fr);height:auto}.viewer{grid-column:1/-1}.center{min-height:660px}}
+@media (max-width:760px){main{grid-template-columns:1fr}.center{min-height:580px}#view3d{height:340px}.toolgrid{grid-template-columns:1fr 1fr 1fr}.swatches{grid-template-columns:repeat(12,1fr)}}
+</style>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}
+</script>
+</head>
+<body>
+<div id="loadErr">Impossible de charger le moteur 3D (connexion internet nécessaire au premier chargement).</div>
+<header class="top">
+  <div class="brand"><span class="logo" aria-hidden="true"></span><h1>Atelier de skins</h1></div>
+  <div class="hgroup">
+    <div class="seg" id="modelSeg" title="Largeur des bras">
+      <button data-model="classic">Classique · bras 4 px</button>
+      <button data-model="slim">Fin · bras 3 px</button>
+    </div>
+    <button id="undoBtn" title="Annuler (Ctrl+Z)">↶ Annuler</button>
+    <button id="redoBtn" title="Rétablir (Ctrl+Y)">↷</button>
+    <button id="newBtn">Nouveau</button>
+    <label class="btn">Importer un skin<input type="file" id="fileIn" accept="image/png" hidden></label>
+    <input type="text" id="nameIn" value="mon-skin" aria-label="Nom du fichier">
+    <button id="dlBtn" class="primary">Télécharger le PNG</button>
+  </div>
+</header>
+
+<main>
+  <aside class="panel">
+    <h2>Outils</h2>
+    <div class="toolgrid" id="tools">
+      <button data-tool="brush">Pinceau <kbd>B</kbd></button>
+      <button data-tool="eraser">Gomme <kbd>E</kbd></button>
+      <button data-tool="pick">Pipette <kbd>I</kbd></button>
+      <button data-tool="fill">Remplir <kbd>G</kbd></button>
+      <button data-tool="noise">Texture <kbd>N</kbd></button>
+      <button data-tool="lighten">Éclaircir <kbd>L</kbd></button>
+      <button data-tool="darken">Assombrir <kbd>D</kbd></button>
+    </div>
+    <h2>Taille du pinceau</h2>
+    <div class="seg" id="sizeSeg"><button data-size="1">1 px</button><button data-size="2">2 px</button><button data-size="3">3 px</button></div>
+    <h2>Options</h2>
+    <label class="chk"><input type="checkbox" id="symChk"> Symétrie gauche / droite <kbd>X</kbd></label>
+    <label class="chk"><input type="checkbox" id="gridChk" checked> Grille</label>
+    <label class="chk"><input type="checkbox" id="underChk" checked> Voir la base sous la seconde couche</label>
+    <h2>Couleur</h2>
+    <div class="colorrow"><input type="color" id="colorIn" value="#c68863"><input type="text" id="hexIn" maxlength="7" value="#c68863" aria-label="Code hexadécimal"></div>
+    <div class="swatches" id="palette"></div>
+    <h3>Récentes</h3>
+    <div class="swatches" id="recent"></div>
+  </aside>
+
+  <section class="panel center">
+    <div>
+      <div class="parts" id="partsBar"></div>
+      <div class="selrow" style="margin-top:8px">
+        <div class="seg" id="layerSeg"><button data-layer="base">Couche de base</button><button data-layer="over">Seconde couche</button></div>
+        <span class="layer-note" id="layerNote"></span>
+      </div>
+    </div>
+    <div class="netrow" id="netRow">
+      <canvas id="net" title="Cliquer sur une face pour la sélectionner"></canvas>
+      <div>
+        <div class="faces" id="facesBar"></div>
+        <div class="actions">
+          <button id="fillFaceBtn">Remplir la face</button>
+          <button id="clearFaceBtn">Effacer la face</button>
+          <button id="mirrorPartBtn"></button>
+        </div>
+      </div>
+    </div>
+    <div id="editorWrap"><canvas id="editor"></canvas></div>
+    <div class="status"><span id="statusL"></span><span id="statusR"></span></div>
+  </section>
+
+  <aside class="panel viewer">
+    <div id="view3d"><div class="hint3d" id="hint3d"></div></div>
+    <button id="paint3dBtn" aria-pressed="false">Peindre directement sur la 3D <kbd>P</kbd></button>
+    <div class="vtoggles">
+      <label class="chk"><input type="checkbox" id="rotChk" checked> Platine tournante</label>
+      <label class="chk"><input type="checkbox" id="overChk" checked> Seconde couche</label>
+      <label class="chk"><input type="checkbox" id="walkChk"> Animation marche</label>
+      <label class="chk"><input type="checkbox" id="flatChk"> Couleurs à plat</label>
+    </div>
+    <div>
+      <div class="bar"><span id="progBar"></span></div>
+      <p id="progTxt"></p>
+    </div>
+    <details class="help">
+      <summary>Mode d'emploi</summary>
+      <ul>
+        <li>Choisis une partie, une couche, puis une face (ou clique sur le patron miniature). Tu peux aussi double-cliquer sur le modèle 3D pour aller à la face visée.</li>
+        <li>Les pixels jamais peints apparaissent en blanc (avec un petit point dans l'éditeur). À l'export, ils restent blancs sur la couche de base et transparents sur la seconde couche.</li>
+        <li>La seconde couche flotte un demi-pixel au-dessus du corps : cheveux qui dépassent, capuche, lunettes, relief de nez ou d'oreilles. Elle ne peut pas aller plus loin : un vrai volume qui ressort sur plusieurs pixels n'existe pas dans les skins standards.</li>
+        <li>Clic droit ou Alt + clic : pipette. Ctrl+Z / Ctrl+Y : annuler / rétablir. Glisser-déposer un PNG sur la page pour l'importer.</li>
+        <li>« Patron entier » affiche le fichier 64×64 tel qu'il sera exporté.</li>
+        <li>Ton travail est sauvegardé automatiquement dans ce navigateur.</li>
+      </ul>
+    </details>
+  </aside>
+</main>
+<div id="toast" role="status"></div>
+
+<script type="module">
+import * as THREE from 'three';
+
+/* ---------- Données de base ---------- */
+const W = 64;
+const PART_ORDER = ['head','body','rarm','larm','rleg','lleg'];
+const FACE_ORDER = ['front','back','right','left','top','bottom'];
+const FACE_NAMES = {front:'Face',back:'Dos',right:'Côté droit',left:'Côté gauche',top:'Dessus',bottom:'Dessous'};
+const LAYER_NAMES = {base:'Couche de base',over:'Seconde couche'};
+const MIRROR_PART = {rarm:'larm',larm:'rarm',rleg:'lleg',lleg:'rleg'};
+const MIRROR_FACE = {left:'right',right:'left'};
+const NORMALS = {front:[0,0,1],back:[0,0,-1],right:[-1,0,0],left:[1,0,0],top:[0,1,0],bottom:[0,-1,0]};
+const PALETTE = ['#f9d4b4','#eab68f','#c68863','#a0674b','#6b4430','#3d2618','#2b1d14','#5a3a22',
+                 '#8c5a2b','#d9a441','#f1d77a','#b8b8b8','#ffffff','#1b1b1b','#495057','#ced4da',
+                 '#3b5bdb','#74c0fc','#2f9e44','#8ce99a','#c92a2a','#ff8787','#845ef7','#f08c00'];
+
+const state = {
+  slim:false, part:'head', layer:'base', face:'front', mode:'face',
+  tool:'brush', prevTool:'brush', size:1, sym:false, grid:true, under:true,
+  color:'#c68863', recent:[],
+  autoRotate:true, showOver:true, walk:false, flat:false, paint3d:false
+};
+
+let pix = new Uint8ClampedArray(W*W*4);
+let touched = new Uint8Array(W*W);
+let parts, faceList = [], faceIndex = {};
+const owner = new Int16Array(W*W).fill(-1);
+
+const $ = s => document.querySelector(s);
+const idx = (x,y) => y*W + x;
+const key = (p,l,f) => p+'|'+l+'|'+f;
+const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+
+function partsDef(slim){
+  const aw = slim ? 3 : 4;
+  return {
+    head:{name:'Tête',        size:[8,8,8],   pos:[0,28,0],          uv:{base:[0,0],  over:[32,0]},  infl:0.5},
+    body:{name:'Torse',       size:[8,12,4],  pos:[0,18,0],          uv:{base:[16,16],over:[16,32]}, infl:0.25},
+    rarm:{name:'Bras droit',  size:[aw,12,4], pos:[-(4+aw/2),18,0],  uv:{base:[40,16],over:[40,32]}, infl:0.25},
+    larm:{name:'Bras gauche', size:[aw,12,4], pos:[4+aw/2,18,0],     uv:{base:[32,48],over:[48,48]}, infl:0.25},
+    rleg:{name:'Jambe droite',size:[4,12,4],  pos:[-2,6,0],          uv:{base:[0,16], over:[0,32]},  infl:0.25},
+    lleg:{name:'Jambe gauche',size:[4,12,4],  pos:[2,6,0],           uv:{base:[16,48],over:[0,48]},  infl:0.25},
+  };
+}
+function faceRects(w,h,d,u,v){
+  return {
+    top:[u+d,v,w,d], bottom:[u+d+w,v,w,d],
+    right:[u,v+d,d,h], front:[u+d,v+d,w,h], left:[u+d+w,v+d,d,h], back:[u+2*d+w,v+d,w,h]
+  };
+}
+function rebuildLayout(){
+  parts = partsDef(state.slim);
+  faceList = []; faceIndex = {}; owner.fill(-1);
+  for (const p of PART_ORDER){
+    const P = parts[p], [w,h,d] = P.size;
+    for (const layer of ['base','over']){
+      const [u,v] = P.uv[layer], rects = faceRects(w,h,d,u,v);
+      for (const f of FACE_ORDER){
+        const r = rects[f], fi = faceList.length;
+        faceList.push({part:p, layer, face:f, rect:r});
+        faceIndex[key(p,layer,f)] = fi;
+        for (let y=0;y<r[3];y++) for (let x=0;x<r[2];x++) owner[idx(r[0]+x, r[1]+y)] = fi;
+      }
+    }
+  }
+}
+const curFi = () => faceIndex[key(state.part,state.layer,state.face)];
+function faceToGlobal(fi,x,y){ const r = faceList[fi].rect; return [r[0]+x, r[1]+y]; }
+function globalToFace(px,py){
+  if (px<0||py<0||px>=W||py>=W) return null;
+  const fi = owner[idx(px,py)]; if (fi<0) return null;
+  const r = faceList[fi].rect; return {fi, x:px-r[0], y:py-r[1]};
+}
+
+/* ---------- Couleurs ---------- */
+function hexToRgb(h){ h=h.replace('#',''); return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)]; }
+function rgbToHex(r,g,b){ return '#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join(''); }
+function outColor(i){
+  const fi = owner[i]; if (fi<0) return [0,0,0,0];
+  const j = i*4;
+  if (faceList[fi].layer==='base') return touched[i] ? [pix[j],pix[j+1],pix[j+2],255] : [255,255,255,255];
+  return touched[i] ? [pix[j],pix[j+1],pix[j+2],pix[j+3]] : [0,0,0,0];
+}
+
+/* ---------- Texture partagée ---------- */
+const texCanvas = document.createElement('canvas'); texCanvas.width = texCanvas.height = W;
+const texCtx = texCanvas.getContext('2d');
+const texData = texCtx.createImageData(W,W);
+let texDirty = true, texture = null;
+function updateTexture(){
+  for (let i=0;i<W*W;i++){ const c = outColor(i); texData.data.set(c, i*4); }
+  texCtx.putImageData(texData,0,0);
+  if (texture) texture.needsUpdate = true;
+  texDirty = false;
+}
+
+/* ---------- Annuler / rétablir ---------- */
+const undoStack = [], redoStack = [];
+const snapshot = () => ({pix:pix.slice(), touched:touched.slice(), slim:state.slim});
+function pushUndo(){ undoStack.push(snapshot()); if (undoStack.length>150) undoStack.shift(); redoStack.length=0; updateUndoButtons(); }
+function restore(s){
+  pix = s.pix; touched = s.touched;
+  if (s.slim!==state.slim){ state.slim = s.slim; rebuildLayout(); rebuild3D(); }
+  refreshAll(); scheduleSave();
+}
+function doUndo(){ if (!undoStack.length) return; redoStack.push(snapshot()); restore(undoStack.pop()); updateUndoButtons(); }
+function doRedo(){ if (!redoStack.length) return; undoStack.push(snapshot()); restore(redoStack.pop()); updateUndoButtons(); }
+function updateUndoButtons(){ $('#undoBtn').disabled = !undoStack.length; $('#redoBtn').disabled = !redoStack.length; }
+
+/* ---------- Peinture ---------- */
+function setPixel(i,rgb){ const j=i*4; pix[j]=rgb[0]; pix[j+1]=rgb[1]; pix[j+2]=rgb[2]; pix[j+3]=255; touched[i]=1; }
+function clearPixel(i){ const j=i*4; pix[j]=pix[j+1]=pix[j+2]=pix[j+3]=0; touched[i]=0; }
+function mirrorOf(fi,x,y){
+  const f = faceList[fi];
+  const ti = faceIndex[key(MIRROR_PART[f.part]||f.part, f.layer, MIRROR_FACE[f.face]||f.face)];
+  return {fi:ti, x:faceList[ti].rect[2]-1-x, y};
+}
+function brushTargets(fi,x,y){
+  const out = [], r = faceList[fi].rect, n = state.size, o = -Math.floor((n-1)/2);
+  for (let dy=0;dy<n;dy++) for (let dx=0;dx<n;dx++){
+    const xx=x+o+dx, yy=y+o+dy;
+    if (xx<0||yy<0||xx>=r[2]||yy>=r[3]) continue;
+    out.push({fi,x:xx,y:yy});
+    if (state.sym) out.push(mirrorOf(fi,xx,yy));
+  }
+  return out;
+}
+const stateKey = i => touched[i] ? '1,'+pix[i*4]+','+pix[i*4+1]+','+pix[i*4+2] : '0';
+function floodFill(fi,x,y){
+  const r = faceList[fi].rect, rgb = hexToRgb(state.color);
+  const start = idx(r[0]+x, r[1]+y), target = stateKey(start);
+  if (target === '1,'+rgb.join(',')) return;
+  const seen = new Uint8Array(W*W), stack = [[x,y]];
+  while (stack.length){
+    const [cx,cy] = stack.pop();
+    if (cx<0||cy<0||cx>=r[2]||cy>=r[3]) continue;
+    const i = idx(r[0]+cx, r[1]+cy);
+    if (seen[i] || stateKey(i)!==target) continue;
+    seen[i]=1; setPixel(i,rgb);
+    stack.push([cx+1,cy],[cx-1,cy],[cx,cy+1],[cx,cy-1]);
+  }
+}
+function shade(i,dir){
+  const j=i*4, f = dir>0 ? (c=>c+(255-c)*0.15) : (c=>c*0.85);
+  return [f(pix[j]),f(pix[j+1]),f(pix[j+2])].map(Math.round);
+}
+function vary(rgb){ const k = 1 + (Math.random()*2-1)*0.09; return rgb.map(c=>clamp(Math.round(c*k),0,255)); }
+
+let stroke = null;
+function beginStroke(){ pushUndo(); stroke = {visited:new Set()}; }
+function endStroke(){
+  if (!stroke) return;
+  stroke = null;
+  if (['brush','noise','fill'].includes(state.tool)) addRecent(state.color);
+  scheduleSave(); refreshProgress(); scheduleDraw();
+}
+function applyTool(fi,x,y){
+  const t = state.tool;
+  if (t==='fill'){
+    floodFill(fi,x,y);
+    if (state.sym){ const m = mirrorOf(fi,x,y); floodFill(m.fi,m.x,m.y); }
+    markDirty(); return;
+  }
+  const rgb = hexToRgb(state.color);
+  for (const T of brushTargets(fi,x,y)){
+    const [gx,gy] = faceToGlobal(T.fi,T.x,T.y), i = idx(gx,gy);
+    if (stroke.visited.has(i)) continue;
+    stroke.visited.add(i);
+    if (t==='brush') setPixel(i,rgb);
+    else if (t==='eraser') clearPixel(i);
+    else if (t==='noise') setPixel(i,vary(rgb));
+    else if (t==='lighten' && touched[i]) setPixel(i,shade(i,1));
+    else if (t==='darken' && touched[i]) setPixel(i,shade(i,-1));
+  }
+  markDirty();
+}
+function pickAt(i){
+  const fi = owner[i]; if (fi<0) return;
+  if (touched[i]) setColor(rgbToHex(pix[i*4],pix[i*4+1],pix[i*4+2]));
+  else if (faceList[fi].layer==='base') setColor('#ffffff');
+  else { toast('Pixel vide sur la seconde couche'); return; }
+  if (state.tool==='pick') setTool(state.prevTool || 'brush');
+}
+function line(x0,y0,x1,y1,fn){
+  const dx=Math.abs(x1-x0), sx=x0<x1?1:-1, dy=-Math.abs(y1-y0), sy=y0<y1?1:-1;
+  let err=dx+dy;
+  for(;;){ fn(x0,y0); if (x0===x1&&y0===y1) break; const e2=2*err; if (e2>=dy){err+=dy;x0+=sx;} if (e2<=dx){err+=dx;y0+=sy;} }
+}
+function mirrorPartCopy(src,dst,layer){
+  for (const f of FACE_ORDER){
+    const s = faceList[faceIndex[key(src,layer,f)]].rect;
+    const d = faceList[faceIndex[key(dst,layer,MIRROR_FACE[f]||f)]].rect;
+    for (let y=0;y<s[3];y++) for (let x=0;x<s[2];x++){
+      const si = idx(s[0]+x, s[1]+y), di = idx(d[0]+s[2]-1-x, d[1]+y);
+      pix.set(pix.subarray(si*4, si*4+4), di*4); touched[di] = touched[si];
+    }
+  }
+}
+
+/* ---------- Changement de modèle (conversion des bras) ---------- */
+function switchModel(slim){
+  if (slim===state.slim) return;
+  pushUndo();
+  const saved = {};
+  for (const p of ['rarm','larm']) for (const l of ['base','over']) for (const f of FACE_ORDER){
+    const r = faceList[faceIndex[key(p,l,f)]].rect, cells = [];
+    for (let y=0;y<r[3];y++) for (let x=0;x<r[2];x++){
+      const i = idx(r[0]+x, r[1]+y); cells.push([pix.slice(i*4,i*4+4), touched[i]]); clearPixel(i);
+    }
+    saved[key(p,l,f)] = {w:r[2], cells};
+  }
+  state.slim = slim; rebuildLayout();
+  for (const k in saved){
+    const r = faceList[faceIndex[k]].rect, s = saved[k];
+    for (let y=0;y<r[3];y++) for (let x=0;x<r[2];x++){
+      let sx = x;
+      if (s.w===4 && r[2]===3) sx = x<2 ? x : x+1;      // retire la 3e colonne
+      if (s.w===3 && r[2]===4) sx = x<=1 ? x : x-1;     // double la 2e colonne
+      const c = s.cells[y*s.w+sx], i = idx(r[0]+x, r[1]+y);
+      pix.set(c[0], i*4); touched[i] = c[1];
+    }
+  }
+  rebuild3D(); refreshAll(); scheduleSave();
+  toast(slim ? 'Modèle fin : bras convertis en 3 px' : 'Modèle classique : bras convertis en 4 px');
+}
+
+/* ---------- Éditeur 2D ---------- */
+const ed = $('#editor'), edCtx = ed.getContext('2d');
+let edView = {x:0,y:0,w:8,h:8,cell:40}, hover = null, edLast = null;
+function viewRect(){ return state.mode==='net' ? [0,0,W,W] : faceList[curFi()].rect; }
+function layoutEditor(){
+  const wrap = $('#editorWrap');
+  const aw = wrap.clientWidth-24, ah = wrap.clientHeight-24;
+  const [x,y,w,h] = viewRect();
+  const cell = clamp(Math.floor(Math.min(aw/w, ah/h)), 3, 60);
+  edView = {x,y,w,h,cell};
+  const dpr = window.devicePixelRatio || 1;
+  ed.style.width = w*cell+'px'; ed.style.height = h*cell+'px';
+  ed.width = Math.round(w*cell*dpr); ed.height = Math.round(h*cell*dpr);
+  edCtx.setTransform(dpr,0,0,dpr,0,0);
+  drawEditor();
+}
+function baseCounterpart(fi,gx,gy){
+  const f = faceList[fi], b = faceList[faceIndex[key(f.part,'base',f.face)]].rect;
+  return idx(b[0]+gx-f.rect[0], b[1]+gy-f.rect[1]);
+}
+const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function drawEditor(){
+  const {x:vx,y:vy,w,h,cell} = edView, c = edCtx;
+  c.clearRect(0,0,w*cell,h*cell);
+  const empty = cssVar('--empty'), hl = cssVar('--hl');
+  for (let yy=0;yy<h;yy++) for (let xx=0;xx<w;xx++){
+    const gx=vx+xx, gy=vy+yy, i=idx(gx,gy), fi=owner[i], px=xx*cell, py=yy*cell, j=i*4;
+    if (fi<0){ c.fillStyle = empty; c.fillRect(px,py,cell,cell); continue; }
+    if (faceList[fi].layer==='over'){
+      c.fillStyle = ((gx+gy)&1) ? '#d6d6d6' : '#f1f1f1'; c.fillRect(px,py,cell,cell);
+      if (state.mode==='face' && state.under){
+        const b = outColor(baseCounterpart(fi,gx,gy));
+        c.globalAlpha = .35; c.fillStyle = `rgb(${b[0]},${b[1]},${b[2]})`; c.fillRect(px,py,cell,cell); c.globalAlpha = 1;
+      }
+      if (touched[i]){ c.fillStyle = `rgba(${pix[j]},${pix[j+1]},${pix[j+2]},${pix[j+3]/255})`; c.fillRect(px,py,cell,cell); }
+    } else if (touched[i]){
+      c.fillStyle = `rgb(${pix[j]},${pix[j+1]},${pix[j+2]})`; c.fillRect(px,py,cell,cell);
+    } else {
+      c.fillStyle = '#fff'; c.fillRect(px,py,cell,cell);
+      const s = Math.max(1, Math.round(cell/7));
+      c.fillStyle = 'rgba(0,0,0,.2)'; c.fillRect(px+(cell-s)/2, py+(cell-s)/2, s, s);
+    }
+  }
+  if (state.grid && cell>=7){
+    c.strokeStyle = 'rgba(0,0,0,.13)'; c.lineWidth = 1; c.beginPath();
+    for (let xx=1;xx<w;xx++){ c.moveTo(xx*cell+.5,0); c.lineTo(xx*cell+.5,h*cell); }
+    for (let yy=1;yy<h;yy++){ c.moveTo(0,yy*cell+.5); c.lineTo(w*cell,yy*cell+.5); }
+    c.stroke();
+  }
+  if (state.mode==='net'){
+    c.lineWidth = 1; c.strokeStyle = 'rgba(0,0,0,.45)';
+    for (const f of faceList){ const r=f.rect; c.strokeRect(r[0]*cell+.5, r[1]*cell+.5, r[2]*cell-1, r[3]*cell-1); }
+    const r = faceList[curFi()].rect; c.lineWidth = 2; c.strokeStyle = hl;
+    c.strokeRect(r[0]*cell+1, r[1]*cell+1, r[2]*cell-2, r[3]*cell-2);
+  }
+  if (hover){
+    const g = globalToFace(hover[0],hover[1]);
+    if (g){
+      const tg = (state.tool==='pick'||state.tool==='fill') ? [{fi:g.fi,x:g.x,y:g.y}] : brushTargets(g.fi,g.x,g.y);
+      c.lineWidth = 2; c.strokeStyle = hl;
+      for (const t of tg){
+        const [ax,ay] = faceToGlobal(t.fi,t.x,t.y);
+        if (ax<vx||ay<vy||ax>=vx+w||ay>=vy+h) continue;
+        c.strokeRect((ax-vx)*cell+1, (ay-vy)*cell+1, cell-2, cell-2);
+      }
+    }
+  }
+}
+function edPixel(e){
+  const b = ed.getBoundingClientRect();
+  const x = Math.floor((e.clientX-b.left)/edView.cell), y = Math.floor((e.clientY-b.top)/edView.cell);
+  if (x<0||y<0||x>=edView.w||y>=edView.h) return null;
+  return [edView.x+x, edView.y+y];
+}
+ed.addEventListener('pointerdown', e=>{
+  const p = edPixel(e); if (!p) return;
+  e.preventDefault(); ed.setPointerCapture(e.pointerId);
+  if (e.button===2 || e.altKey || state.tool==='pick'){ pickAt(idx(p[0],p[1])); return; }
+  if (e.button!==0) return;
+  const g = globalToFace(p[0],p[1]); if (!g) return;
+  beginStroke(); applyTool(g.fi,g.x,g.y); edLast = p;
+});
+ed.addEventListener('pointermove', e=>{
+  const p = edPixel(e); hover = p;
+  if (stroke && edLast && p && state.tool!=='fill'){
+    line(edLast[0],edLast[1],p[0],p[1],(x,y)=>{ const g = globalToFace(x,y); if (g) applyTool(g.fi,g.x,g.y); });
+    edLast = p;
+  }
+  scheduleDraw(); updateStatus();
+});
+ed.addEventListener('pointerleave', ()=>{ hover = null; scheduleDraw(); updateStatus(); });
+ed.addEventListener('contextmenu', e=>e.preventDefault());
+window.addEventListener('pointerup', ()=>{ edLast = null; if (stroke) endStroke(); });
+
+/* ---------- Patron miniature de la partie ---------- */
+const net = $('#net'), netCtx = net.getContext('2d');
+let netScale = 6;
+function drawNet(){
+  const P = parts[state.part], [w,h,d] = P.size, [u,v] = P.uv[state.layer];
+  const nw = 2*d+2*w, nh = d+h;
+  netScale = clamp(Math.floor(240/nw), 3, 10);
+  const dpr = window.devicePixelRatio||1, s = netScale;
+  net.style.width = nw*s+'px'; net.style.height = nh*s+'px';
+  net.width = Math.round(nw*s*dpr); net.height = Math.round(nh*s*dpr);
+  netCtx.setTransform(dpr,0,0,dpr,0,0);
+  netCtx.clearRect(0,0,nw*s,nh*s);
+  for (let y=0;y<nh;y++) for (let x=0;x<nw;x++){
+    const i = idx(u+x, v+y), fi = owner[i];
+    if (fi<0 || faceList[fi].part!==state.part) continue;
+    if (state.layer==='over'){ netCtx.fillStyle = ((x+y)&1)?'#d6d6d6':'#f1f1f1'; netCtx.fillRect(x*s,y*s,s,s); }
+    const c = outColor(i);
+    if (c[3]){ netCtx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${c[3]/255})`; netCtx.fillRect(x*s,y*s,s,s); }
+  }
+  for (const f of FACE_ORDER){
+    const fi = faceIndex[key(state.part,state.layer,f)], r = faceList[fi].rect;
+    const cur = state.mode==='face' && f===state.face;
+    netCtx.lineWidth = cur ? 2 : 1;
+    netCtx.strokeStyle = cur ? cssVar('--hl') : 'rgba(0,0,0,.5)';
+    netCtx.strokeRect((r[0]-u)*s+(cur?1:.5), (r[1]-v)*s+(cur?1:.5), r[2]*s-(cur?2:1), r[3]*s-(cur?2:1));
+  }
+}
+net.addEventListener('click', e=>{
+  const P = parts[state.part], [u,v] = P.uv[state.layer], b = net.getBoundingClientRect();
+  const x = Math.floor((e.clientX-b.left)/netScale)+u, y = Math.floor((e.clientY-b.top)/netScale)+v;
+  const g = globalToFace(x,y);
+  if (g && faceList[g.fi].part===state.part) selectFace(state.part, state.layer, faceList[g.fi].face);
+});
+
+/* ---------- 3D ---------- */
+let renderer, scene, camera, matBase, matOver, matBaseFlat, matOverFlat, turntable, rig, hlMat, highlight = null;
+let partGroups = {}, meshes = [];
+let yaw = 0.5, pitch = 0.22, dist = 80, drag = null, last3d = null, walkT = 0;
+const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
+const host = $('#view3d');
+
+function cornersOf(f,X,Y,Z){
+  switch(f){
+    case 'front':  return [[-X,Y,Z],[X,Y,Z],[-X,-Y,Z],[X,-Y,Z]];
+    case 'back':   return [[X,Y,-Z],[-X,Y,-Z],[X,-Y,-Z],[-X,-Y,-Z]];
+    case 'right':  return [[-X,Y,-Z],[-X,Y,Z],[-X,-Y,-Z],[-X,-Y,Z]];
+    case 'left':   return [[X,Y,Z],[X,Y,-Z],[X,-Y,Z],[X,-Y,-Z]];
+    case 'top':    return [[-X,Y,-Z],[X,Y,-Z],[-X,Y,Z],[X,Y,Z]];
+    case 'bottom': return [[-X,-Y,Z],[X,-Y,Z],[-X,-Y,-Z],[X,-Y,-Z]];
+  }
+}
+function pivotOf(p){
+  const P = parts[p];
+  if (p==='head'||p==='body') return [0,24,0];
+  if (p==='rarm'||p==='larm') return [P.pos[0],22,0];
+  return [P.pos[0],12,0];
+}
+function faceGeometry(f,X,Y,Z,off,rect){
+  const C = cornersOf(f,X,Y,Z), [rx,ry,rw,rh] = rect;
+  const u0=rx/W, u1=(rx+rw)/W, v0=1-ry/W, v1=1-(ry+rh)/W;
+  const P = {TL:C[0],TR:C[1],BL:C[2],BR:C[3]}, U = {TL:[u0,v0],TR:[u1,v0],BL:[u0,v1],BR:[u1,v1]};
+  const order = ['TL','BL','TR','TR','BL','BR'];
+  const pos = new Float32Array(18), uv = new Float32Array(12);
+  order.forEach((k,n)=>{ const p=P[k]; pos.set([p[0]+off[0],p[1]+off[1],p[2]+off[2]], n*3); uv.set(U[k], n*2); });
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  g.setAttribute('uv', new THREE.BufferAttribute(uv,2));
+  g.computeVertexNormals();
+  return g;
+}
+function init3D(){
+  renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
+  renderer.setPixelRatio(Math.min(2, window.devicePixelRatio||1));
+  host.prepend(renderer.domElement);
+  scene = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera(32,1,0.1,600);
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x9a948a, 2.4));
+  const dl = new THREE.DirectionalLight(0xffffff, 1.1); dl.position.set(25,45,35); scene.add(dl);
+
+  texture = new THREE.CanvasTexture(texCanvas);
+  texture.magFilter = THREE.NearestFilter; texture.minFilter = THREE.NearestFilter;
+  texture.generateMipmaps = false; texture.colorSpace = THREE.SRGBColorSpace;
+  matBase = new THREE.MeshLambertMaterial({map:texture});
+  matOver = new THREE.MeshLambertMaterial({map:texture, transparent:true, alphaTest:0.02, side:THREE.DoubleSide});
+  matBaseFlat = new THREE.MeshBasicMaterial({map:texture});
+  matOverFlat = new THREE.MeshBasicMaterial({map:texture, transparent:true, alphaTest:0.02, side:THREE.DoubleSide});
+  hlMat = new THREE.LineBasicMaterial({color:new THREE.Color(cssVar('--hl') || '#e8590c')});
+
+  turntable = new THREE.Group(); scene.add(turntable);
+  const pc = document.createElement('canvas'); pc.width = pc.height = 16;
+  const px = pc.getContext('2d');
+  for (let y=0;y<16;y++) for (let x=0;x<16;x++){ px.fillStyle = ((x+y)&1) ? '#7d7a73' : '#8c8981'; px.fillRect(x,y,1,1); }
+  const ptex = new THREE.CanvasTexture(pc); ptex.magFilter = THREE.NearestFilter; ptex.colorSpace = THREE.SRGBColorSpace;
+  const platform = new THREE.Mesh(new THREE.CylinderGeometry(13,13.6,1.4,48),
+    [new THREE.MeshLambertMaterial({color:0x5f5c56}), new THREE.MeshLambertMaterial({map:ptex}), new THREE.MeshLambertMaterial({color:0x5f5c56})]);
+  platform.position.y = -0.7; turntable.add(platform);
+  rig = new THREE.Group(); turntable.add(rig);
+
+  rebuild3D(); resize3D();
+  bind3D();
+  let lastT = performance.now();
+  renderer.setAnimationLoop(t=>{
+    const dt = Math.min(0.05, (t-lastT)/1000); lastT = t;
+    if (state.autoRotate && !drag && !state.paint3d) yaw += dt*0.55;
+    turntable.rotation.y = yaw;
+    camera.position.set(0, 15 + dist*Math.sin(pitch), dist*Math.cos(pitch));
+    camera.lookAt(0,15,0);
+    if (state.walk) walkT += dt*4;
+    const a = state.walk ? Math.sin(walkT)*0.6 : 0;
+    for (const [p,s] of [['rarm',1],['larm',-1],['rleg',-1],['lleg',1]]){
+      const g = partGroups[p]; if (!g) continue;
+      const target = a*s; g.rotation.x += (target-g.rotation.x)*(state.walk?1:0.15);
+    }
+    if (texDirty) updateTexture();
+    renderer.render(scene,camera);
+  });
+}
+function rebuild3D(){
+  if (!rig) return;
+  for (const g of Object.values(partGroups)){ rig.remove(g); g.traverse(o=>o.geometry && o.geometry.dispose()); }
+  partGroups = {}; meshes = []; highlight = null;
+  for (const p of PART_ORDER){
+    const P = parts[p], piv = pivotOf(p), g = new THREE.Group();
+    g.position.set(...piv); rig.add(g); partGroups[p] = g;
+    for (const layer of ['base','over']){
+      const inf = layer==='over' ? P.infl : 0, [w,h,d] = P.size;
+      const off = [P.pos[0]-piv[0], P.pos[1]-piv[1], P.pos[2]-piv[2]];
+      for (const f of FACE_ORDER){
+        const fi = faceIndex[key(p,layer,f)];
+        const m = new THREE.Mesh(faceGeometry(f,w/2+inf,h/2+inf,d/2+inf,off,faceList[fi].rect), matFor(layer));
+        m.userData = {fi, layer};
+        if (layer==='over'){ m.renderOrder = 1; m.visible = state.showOver; }
+        g.add(m); meshes.push(m);
+      }
+    }
+  }
+  updateHighlight();
+}
+const matFor = layer => state.flat ? (layer==='base'?matBaseFlat:matOverFlat) : (layer==='base'?matBase:matOver);
+function applyMaterials(){ for (const m of meshes){ m.material = matFor(m.userData.layer); if (m.userData.layer==='over') m.visible = state.showOver; } }
+function updateHighlight(){
+  if (highlight){ highlight.parent && highlight.parent.remove(highlight); highlight.geometry.dispose(); highlight = null; }
+  if (!rig || state.mode!=='face' || !partGroups[state.part]) return;
+  const P = parts[state.part], inf = state.layer==='over' ? P.infl : 0, [w,h,d] = P.size;
+  const C = cornersOf(state.face, w/2+inf, h/2+inf, d/2+inf), n = NORMALS[state.face], piv = pivotOf(state.part);
+  const off = [P.pos[0]-piv[0]+n[0]*.07, P.pos[1]-piv[1]+n[1]*.07, P.pos[2]-piv[2]+n[2]*.07];
+  const pts = [C[0],C[1],C[3],C[2]].map(c=>new THREE.Vector3(c[0]+off[0],c[1]+off[1],c[2]+off[2]));
+  highlight = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(pts), hlMat);
+  partGroups[state.part].add(highlight);
+}
+function resize3D(){
+  if (!renderer) return;
+  const w = host.clientWidth, h = host.clientHeight;
+  renderer.setSize(w,h,false); camera.aspect = w/h; camera.updateProjectionMatrix();
+}
+function hit3D(e,paintMode){
+  const b = renderer.domElement.getBoundingClientRect();
+  ndc.set(((e.clientX-b.left)/b.width)*2-1, -((e.clientY-b.top)/b.height)*2+1);
+  ray.setFromCamera(ndc,camera);
+  const targets = meshes.filter(m=>m.visible && (!paintMode || m.userData.layer===state.layer));
+  for (const h of ray.intersectObjects(targets,false)){
+    if (!h.uv) continue;
+    const fi = h.object.userData.fi, r = faceList[fi].rect;
+    const px = clamp(Math.floor(h.uv.x*W), r[0], r[0]+r[2]-1);
+    const py = clamp(Math.floor((1-h.uv.y)*W), r[1], r[1]+r[3]-1);
+    if (!paintMode && faceList[fi].layer==='over' && !touched[idx(px,py)]) continue;
+    return {fi, x:px-r[0], y:py-r[1], px, py};
+  }
+  return null;
+}
+function bind3D(){
+  const cv = renderer.domElement;
+  cv.addEventListener('contextmenu', e=>e.preventDefault());
+  cv.addEventListener('pointerdown', e=>{
+    cv.setPointerCapture(e.pointerId);
+    if (state.paint3d && e.button===0){
+      const h = hit3D(e,true); if (!h) { drag = {x:e.clientX,y:e.clientY}; return; }
+      if (state.tool==='pick' || e.altKey){ pickAt(idx(h.px,h.py)); return; }
+      beginStroke(); applyTool(h.fi,h.x,h.y); last3d = h; return;
+    }
+    drag = {x:e.clientX, y:e.clientY};
+  });
+  cv.addEventListener('pointermove', e=>{
+    if (drag){
+      yaw += (e.clientX-drag.x)*0.01;
+      pitch = clamp(pitch + (e.clientY-drag.y)*0.006, -0.5, 1.25);
+      drag.x = e.clientX; drag.y = e.clientY; return;
+    }
+    if (stroke && last3d){
+      const h = hit3D(e,true); if (!h) return;
+      if (h.fi===last3d.fi && state.tool!=='fill') line(last3d.x,last3d.y,h.x,h.y,(x,y)=>applyTool(h.fi,x,y));
+      else if (state.tool!=='fill') applyTool(h.fi,h.x,h.y);
+      last3d = h;
+    }
+  });
+  const up = ()=>{ drag = null; last3d = null; if (stroke) endStroke(); };
+  cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+  cv.addEventListener('dblclick', e=>{
+    if (state.paint3d) return;
+    const h = hit3D(e,false); if (!h) return;
+    const f = faceList[h.fi]; selectFace(f.part, f.layer, f.face);
+  });
+  cv.addEventListener('wheel', e=>{ e.preventDefault(); dist = clamp(dist*(1+Math.sign(e.deltaY)*0.08), 36, 160); }, {passive:false});
+}
+
+/* ---------- Interface ---------- */
+function selectFace(part,layer,face){
+  state.part = part; state.layer = layer; state.face = face; state.mode = 'face';
+  if (layer==='over' && !state.showOver){ state.showOver = true; applyMaterials(); }
+  refreshAll();
+}
+function setTool(t){ if (t!=='pick') state.prevTool = t; else if (state.tool!=='pick') state.prevTool = state.tool; state.tool = t; updateUI(); scheduleDraw(); }
+function setColor(hex){
+  state.color = hex.toLowerCase();
+  $('#colorIn').value = state.color; $('#hexIn').value = state.color;
+  document.querySelectorAll('.sw').forEach(b=>b.classList.toggle('cur', b.dataset.c===state.color));
+}
+function addRecent(c){
+  state.recent = [c, ...state.recent.filter(x=>x!==c)].slice(0,16);
+  renderSwatches();
+}
+function renderSwatches(){
+  const mk = (list, el) => {
+    el.innerHTML = '';
+    if (!list.length){ el.innerHTML = '<span class="empty-note">Les couleurs utilisées s\'afficheront ici.</span>'; return; }
+    for (const c of list){
+      const b = document.createElement('button'); b.className = 'sw'; b.dataset.c = c; b.style.background = c; b.title = c;
+      b.addEventListener('click', ()=>{ setColor(c); if (['eraser','pick'].includes(state.tool)) setTool('brush'); });
+      el.appendChild(b);
+    }
+  };
+  mk(PALETTE, $('#palette')); mk(state.recent, $('#recent')); setColor(state.color);
+}
+function buildBars(){
+  const pb = $('#partsBar');
+  for (const p of PART_ORDER){
+    const b = document.createElement('button'); b.dataset.part = p; b.textContent = parts[p].name;
+    b.addEventListener('click', ()=>selectFace(p, state.layer, state.part===p ? state.face : 'front'));
+    pb.appendChild(b);
+  }
+  const sep = document.createElement('span'); sep.className = 'sep'; pb.appendChild(sep);
+  const nb = document.createElement('button'); nb.dataset.part = 'net'; nb.textContent = 'Patron entier 64×64';
+  nb.addEventListener('click', ()=>{ state.mode = 'net'; refreshAll(); });
+  pb.appendChild(nb);
+  const fb = $('#facesBar');
+  for (const f of FACE_ORDER){
+    const b = document.createElement('button'); b.dataset.face = f; b.textContent = FACE_NAMES[f];
+    b.addEventListener('click', ()=>selectFace(state.part, state.layer, f));
+    fb.appendChild(b);
+  }
+}
+function updateFaceButtons(){
+  document.querySelectorAll('#facesBar button').forEach(b=>{
+    const r = faceList[faceIndex[key(state.part,state.layer,b.dataset.face)]].rect;
+    let n = 0; for (let y=0;y<r[3];y++) for (let x=0;x<r[2];x++) n += touched[idx(r[0]+x,r[1]+y)];
+    const tot = r[2]*r[3];
+    b.classList.toggle('done', n===tot); b.classList.toggle('partial', n>0 && n<tot);
+    b.classList.toggle('on', state.mode==='face' && b.dataset.face===state.face);
+    b.title = `${r[2]}×${r[3]} px · ${n}/${tot} peints`;
+  });
+}
+function updateUI(){
+  document.querySelectorAll('#modelSeg button').forEach(b=>b.classList.toggle('on', (b.dataset.model==='slim')===state.slim));
+  document.querySelectorAll('#partsBar button').forEach(b=>b.classList.toggle('on', state.mode==='net' ? b.dataset.part==='net' : b.dataset.part===state.part));
+  document.querySelectorAll('#layerSeg button').forEach(b=>b.classList.toggle('on', b.dataset.layer===state.layer));
+  document.querySelectorAll('#tools button').forEach(b=>b.setAttribute('aria-pressed', b.dataset.tool===state.tool));
+  document.querySelectorAll('#sizeSeg button').forEach(b=>b.classList.toggle('on', +b.dataset.size===state.size));
+  $('#symChk').checked = state.sym; $('#gridChk').checked = state.grid; $('#underChk').checked = state.under;
+  $('#rotChk').checked = state.autoRotate; $('#overChk').checked = state.showOver; $('#walkChk').checked = state.walk; $('#flatChk').checked = state.flat;
+  $('#paint3dBtn').setAttribute('aria-pressed', state.paint3d);
+  host.classList.toggle('paint', state.paint3d);
+  $('#hint3d').textContent = state.paint3d
+    ? `Clic : peindre sur la ${state.layer==='base'?'couche de base':'seconde couche'} · clic droit + glisser : tourner`
+    : 'Glisser : tourner · molette : zoom · double-clic : aller à la face';
+  $('#layerNote').textContent = state.layer==='over'
+    ? 'Flotte un demi-pixel au-dessus du corps : cheveux, capuche, relief du nez ou des oreilles. Les pixels vides restent transparents.'
+    : 'La peau et les vêtements. Tout pixel non peint sera exporté en blanc.';
+  const mb = $('#mirrorPartBtn'), m = MIRROR_PART[state.part];
+  mb.hidden = !m; if (m) mb.textContent = `Copier en miroir → ${parts[m].name.toLowerCase()}`;
+  const disabled = state.mode==='net';
+  ['#fillFaceBtn','#clearFaceBtn','#mirrorPartBtn'].forEach(s=>$(s).disabled = disabled);
+  updateFaceButtons(); updateStatus();
+}
+function updateStatus(){
+  const [x,y,w,h] = viewRect();
+  $('#statusL').textContent = state.mode==='net'
+    ? 'Patron entier · 64×64 px (le fichier tel qu\'il sera exporté)'
+    : `${parts[state.part].name} · ${LAYER_NAMES[state.layer]} · ${FACE_NAMES[state.face]} — ${w}×${h} px`;
+  let r = '';
+  if (hover){
+    const g = globalToFace(hover[0],hover[1]);
+    if (g){ const f = faceList[g.fi]; r = (state.mode==='net' ? `${parts[f.part].name}, ${FACE_NAMES[f.face].toLowerCase()} · ` : '') + `x ${g.x}, y ${g.y} · fichier (${hover[0]}, ${hover[1]})`; }
+    else r = `zone inutilisée (${hover[0]}, ${hover[1]})`;
+  }
+  $('#statusR').textContent = r;
+}
+function refreshProgress(){
+  let bt=0, bn=0, ot=0;
+  for (let i=0;i<W*W;i++){ const fi = owner[i]; if (fi<0) continue; if (faceList[fi].layer==='base'){ bn++; bt+=touched[i]; } else ot+=touched[i]; }
+  const pct = Math.round(bt/bn*100);
+  $('#progBar').style.width = pct+'%';
+  $('#progTxt').textContent = `Couche de base peinte à ${pct} % (${bt}/${bn} px) · seconde couche : ${ot} px`;
+}
+let drawPending = false;
+function scheduleDraw(){
+  if (drawPending) return; drawPending = true;
+  requestAnimationFrame(()=>{ drawPending = false; drawEditor(); drawNet(); updateFaceButtons(); });
+}
+function markDirty(){ texDirty = true; scheduleDraw(); }
+function refreshAll(){ updateUI(); layoutEditor(); drawNet(); texDirty = true; refreshProgress(); updateHighlight(); }
+
+let toastTimer;
+function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(()=>t.classList.remove('show'), 2600); }
+
+/* ---------- Sauvegarde locale ---------- */
+const LS = 'atelier-skin-v1';
+function b64(u8){ let s=''; for (let i=0;i<u8.length;i+=0x8000) s += String.fromCharCode.apply(null, u8.subarray(i,i+0x8000)); return btoa(s); }
+function unb64(str,T){ const bin = atob(str), a = new T(bin.length); for (let i=0;i<bin.length;i++) a[i] = bin.charCodeAt(i); return a; }
+let saveTimer;
+function scheduleSave(){ clearTimeout(saveTimer); saveTimer = setTimeout(save, 400); }
+function save(){
+  try{ localStorage.setItem(LS, JSON.stringify({slim:state.slim, pix:b64(pix), t:b64(touched), color:state.color, recent:state.recent, name:$('#nameIn').value})); }catch(e){}
+}
+function load(){
+  try{
+    const s = JSON.parse(localStorage.getItem(LS)); if (!s) return;
+    state.slim = !!s.slim; rebuildLayout();
+    const p = unb64(s.pix, Uint8ClampedArray), t = unb64(s.t, Uint8Array);
+    if (p.length===W*W*4 && t.length===W*W){ pix = p; touched = t; }
+    if (s.color) state.color = s.color;
+    if (Array.isArray(s.recent)) state.recent = s.recent.slice(0,16);
+    if (s.name) $('#nameIn').value = s.name;
+  }catch(e){}
+}
+
+/* ---------- Import / export ---------- */
+function importFile(file){
+  if (!file) return;
+  const url = URL.createObjectURL(file), img = new Image();
+  img.onload = ()=>{
+    URL.revokeObjectURL(url);
+    const w = img.naturalWidth, h = img.naturalHeight;
+    if (w!==64 || (h!==64 && h!==32)){ toast('Format non reconnu : il faut un PNG de 64×64 (ou l\'ancien format 64×32).'); return; }
+    const c = document.createElement('canvas'); c.width = c.height = W;
+    const x = c.getContext('2d'); x.drawImage(img,0,0);
+    const d = x.getImageData(0,0,W,W).data;
+    pushUndo();
+    const legacy = h===32;
+    let slim = false;
+    if (!legacy){ slim = true; for (let yy=20;yy<32;yy++) for (const xx of [54,55]) if (d[idx(xx,yy)*4+3]!==0) slim = false; }
+    state.slim = slim; rebuildLayout();
+    pix = new Uint8ClampedArray(W*W*4); touched = new Uint8Array(W*W);
+    for (let i=0;i<W*W;i++){
+      const fi = owner[i]; if (fi<0) continue;
+      const a = d[i*4+3]; if (!a) continue;
+      pix.set([d[i*4],d[i*4+1],d[i*4+2], faceList[fi].layer==='base' ? 255 : a], i*4); touched[i] = 1;
+    }
+    if (legacy){
+      let allOpaque = true; const hat = [];
+      for (const f of FACE_ORDER){ const r = faceList[faceIndex[key('head','over',f)]].rect;
+        for (let yy=0;yy<r[3];yy++) for (let xx=0;xx<r[2];xx++){ const i = idx(r[0]+xx,r[1]+yy); hat.push(i); if (d[i*4+3]!==255) allOpaque = false; } }
+      if (allOpaque) hat.forEach(clearPixel);
+      mirrorPartCopy('rarm','larm','base'); mirrorPartCopy('rleg','lleg','base');
+    }
+    const base = file.name.replace(/\.png$/i,''); if (base) $('#nameIn').value = base;
+    rebuild3D(); refreshAll(); scheduleSave();
+    toast(`Skin importé${legacy?' (ancien format converti)':''} · modèle ${slim?'fin':'classique'}`);
+  };
+  img.onerror = ()=>{ URL.revokeObjectURL(url); toast('Impossible de lire cette image.'); };
+  img.src = url;
+}
+function exportPNG(){
+  const c = document.createElement('canvas'); c.width = c.height = W;
+  const x = c.getContext('2d'), d = x.createImageData(W,W);
+  for (let i=0;i<W*W;i++) d.data.set(outColor(i), i*4);
+  x.putImageData(d,0,0);
+  c.toBlob(b=>{
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(b);
+    a.download = (($('#nameIn').value||'mon-skin').trim().replace(/[^\w\-. ]+/g,'_') || 'mon-skin') + '.png';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
+    toast(`Exporté · modèle ${state.slim?'fin (Alex)':'classique (Steve)'} à choisir dans Minecraft`);
+  }, 'image/png');
+}
+
+/* ---------- Branchements ---------- */
+function bindUI(){
+  document.querySelectorAll('#modelSeg button').forEach(b=>b.addEventListener('click', ()=>switchModel(b.dataset.model==='slim')));
+  document.querySelectorAll('#layerSeg button').forEach(b=>b.addEventListener('click', ()=>selectFace(state.part, b.dataset.layer, state.face)));
+  document.querySelectorAll('#tools button').forEach(b=>b.addEventListener('click', ()=>setTool(b.dataset.tool)));
+  document.querySelectorAll('#sizeSeg button').forEach(b=>b.addEventListener('click', ()=>{ state.size = +b.dataset.size; updateUI(); }));
+  $('#symChk').addEventListener('change', e=>{ state.sym = e.target.checked; scheduleDraw(); });
+  $('#gridChk').addEventListener('change', e=>{ state.grid = e.target.checked; scheduleDraw(); });
+  $('#underChk').addEventListener('change', e=>{ state.under = e.target.checked; scheduleDraw(); });
+  $('#rotChk').addEventListener('change', e=>{ state.autoRotate = e.target.checked; });
+  $('#overChk').addEventListener('change', e=>{ state.showOver = e.target.checked; applyMaterials(); });
+  $('#walkChk').addEventListener('change', e=>{ state.walk = e.target.checked; });
+  $('#flatChk').addEventListener('change', e=>{ state.flat = e.target.checked; applyMaterials(); });
+  $('#paint3dBtn').addEventListener('click', ()=>{ state.paint3d = !state.paint3d; updateUI(); });
+  $('#colorIn').addEventListener('input', e=>setColor(e.target.value));
+  $('#hexIn').addEventListener('change', e=>{
+    let v = e.target.value.trim(); if (!v.startsWith('#')) v = '#'+v;
+    if (/^#[0-9a-f]{6}$/i.test(v)) setColor(v); else { e.target.value = state.color; toast('Code couleur attendu : #RRVVBB'); }
+  });
+  $('#undoBtn').addEventListener('click', doUndo);
+  $('#redoBtn').addEventListener('click', doRedo);
+  $('#newBtn').addEventListener('click', ()=>{
+    if (!confirm('Tout effacer et repartir d\'un skin vierge ? (Annuler reste possible)')) return;
+    pushUndo(); pix = new Uint8ClampedArray(W*W*4); touched = new Uint8Array(W*W); refreshAll(); scheduleSave();
+  });
+  $('#fileIn').addEventListener('change', e=>{ importFile(e.target.files[0]); e.target.value = ''; });
+  $('#dlBtn').addEventListener('click', exportPNG);
+  $('#nameIn').addEventListener('change', scheduleSave);
+  $('#fillFaceBtn').addEventListener('click', ()=>{
+    pushUndo(); const r = faceList[curFi()].rect, rgb = hexToRgb(state.color);
+    for (let y=0;y<r[3];y++) for (let x=0;x<r[2];x++) setPixel(idx(r[0]+x,r[1]+y), rgb);
+    if (state.sym){ const fi = curFi(), m = mirrorOf(fi,0,0), mr = faceList[m.fi].rect;
+      for (let y=0;y<mr[3];y++) for (let x=0;x<mr[2];x++) setPixel(idx(mr[0]+x,mr[1]+y), rgb); }
+    addRecent(state.color); markDirty(); refreshProgress(); scheduleSave();
+  });
+  $('#clearFaceBtn').addEventListener('click', ()=>{
+    pushUndo(); const r = faceList[curFi()].rect;
+    for (let y=0;y<r[3];y++) for (let x=0;x<r[2];x++) clearPixel(idx(r[0]+x,r[1]+y));
+    markDirty(); refreshProgress(); scheduleSave();
+  });
+  $('#mirrorPartBtn').addEventListener('click', ()=>{
+    const m = MIRROR_PART[state.part]; if (!m) return;
+    pushUndo(); mirrorPartCopy(state.part, m, state.layer);
+    markDirty(); refreshProgress(); scheduleSave();
+    toast(`${parts[state.part].name} copié en miroir sur ${parts[m].name.toLowerCase()} (${LAYER_NAMES[state.layer].toLowerCase()})`);
+  });
+  window.addEventListener('keydown', e=>{
+    if (e.target.type==='text') return;
+    const k = e.key.toLowerCase();
+    if ((e.ctrlKey||e.metaKey) && k==='z'){ e.preventDefault(); e.shiftKey ? doRedo() : doUndo(); return; }
+    if ((e.ctrlKey||e.metaKey) && k==='y'){ e.preventDefault(); doRedo(); return; }
+    if (e.ctrlKey||e.metaKey||e.altKey) return;
+    const map = {b:'brush',e:'eraser',i:'pick',g:'fill',n:'noise',l:'lighten',d:'darken'};
+    if (map[k]) setTool(map[k]);
+    else if (k==='x'){ state.sym = !state.sym; updateUI(); scheduleDraw(); }
+    else if (k==='p'){ state.paint3d = !state.paint3d; updateUI(); }
+    else if (['1','2','3'].includes(k)){ state.size = +k; updateUI(); }
+  });
+  ['dragenter','dragover'].forEach(t=>window.addEventListener(t, e=>{ e.preventDefault(); document.body.classList.add('drop'); }));
+  ['dragleave','drop'].forEach(t=>window.addEventListener(t, e=>{ e.preventDefault(); if (t==='drop' || e.target===document.documentElement) document.body.classList.remove('drop'); }));
+  window.addEventListener('drop', e=>{ document.body.classList.remove('drop'); const f = e.dataTransfer.files[0]; if (f) importFile(f); });
+  new ResizeObserver(()=>layoutEditor()).observe($('#editorWrap'));
+  new ResizeObserver(()=>resize3D()).observe(host);
+}
+
+/* ---------- Démarrage ---------- */
+rebuildLayout();
+load();
+buildBars();
+renderSwatches();
+bindUI();
+init3D();
+refreshAll();
+updateUndoButtons();
+</script>
+<script>
+// Si le module 3D ne se charge pas (hors ligne), on prévient.
+window.addEventListener('error', e=>{ if (String(e.message||'').match(/import|module|three/i)) document.getElementById('loadErr').style.display='block'; }, true);
+</script>
+</body>
+</html>
